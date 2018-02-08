@@ -49,7 +49,7 @@ MFRC522 mfrc522(RFID_SS_PIN, RFID_RST_PIN);
 
 // WiFi parameters to be configured
 const char* ssid = "porcini";
-const char* password = "";
+const char* password = "#Barghest#";
  IPAddress me(192, 168, 1,5);    
 IPAddress gateway(192, 168, 1, 1); // set gateway to match your network
 IPAddress subnet(255, 255, 255, 0); // set subnet mask to match your network
@@ -77,9 +77,6 @@ void setup() {
   tft.begin();
   analogWrite(TFTBL, 2024); //backlight at 50%
 
-  
-  pinMode(POWERSW,OUTPUT);
-  powerOff();  
   
   //RFID initialisation
   pinMode(RFID_SS_PIN, OUTPUT);
@@ -145,45 +142,44 @@ void loop() {
     if( packetBuffer[3]==0xB1){
       return;
     }
-    int x1 = packetBuffer[59]&0xff;
-    int x2 = packetBuffer[60]&0xff;
-    int watts = (x1*256) + x2;
-
-      tft.setCursor(0,80);
-
-    tft.print("watts:" );
-    tft.print(watts);
-    tft.println("   "); // erase line
-    Serial.println(watts);
-    Serial.println("watts:");
-    int tempI =analogRead(A0);
-
-  tft.setCursor(0,160);
-
-    tft.print("temp(raw)" );
-    tft.print(tempI);
-    tft.println("    ");
-    float temp = ((tempI / 4096.0) * 100.0)-273.4;
-    tft.print("temp:" );
-    tft.print(temp);
-    tft.println("    ");
     
-    if ( watts > 3000 && temp < setPoint) {
-        powerOn();
-    } else {
-        powerOff();
-    }
+    int watts = getValue(59);
+
+    tft.setCursor(0,40);
+
+    writeInt("Gen Watts",watts);
+    writeFloat("Inverter Temp",getValue(31)/10.0);
+    writeFloat("kWh Today",getValue(69)/100.0);
+    writeFloat("kWh Yesterday",getValue(67)/100.0);
+    writeFloat("kWh Daily",getValue(69)/100.0);
+    writeFloat("kWh Month",getValue(87)/100.0);
+    writeFloat("kWh last Month",getValue(91)/100.0);
+    writeFloat("kWh Total",getValue(73)/100.0);
   }
 }
 
+int getValue(int offset){
+    int x1 = packetBuffer[offset]&0xff;
+    int x2 = packetBuffer[offset+1]&0xff;
+    int ret= (x1*256) + x2;
+    return ret;
+}
 
-void powerOn(){
-    Serial.println("power on");
-      digitalWrite(POWERSW,HIGH);  // have power
+void writeInt(const char* name,int value){
+    tft.print(name);
+    tft.print(":");
+    tft.print(value);
+    tft.println("   "); // erase rest of line if the value goes down.
 }
-void powerOff(){
-    digitalWrite(POWERSW,LOW); //not so much
-    Serial.println("power off");
+
+void writeFloat(const char* name,float value){
+    tft.print(name);
+    tft.print(":");
+    char buffer[20];
+    dtostrf(value,6,1,buffer);
+    tft.print(buffer);
+    tft.println("      "); // erase rest of line if the value goes down.
 }
+
 
 
