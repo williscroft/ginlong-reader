@@ -27,7 +27,7 @@
 #define POWERSW D0
 
 // turn the power relay on if we are making more than this amount of power.
-const int MINIMUM_POWER = 3000;
+const int MINIMUM_POWER = 2000;
 
 const unsigned long TEMPERATURE_INTERVAL = 1000;
 const unsigned long PACKET_TIMEOUT = 1000 * 60 * 10; // 10 minutes
@@ -122,7 +122,7 @@ void loop() {
     lcd.clear();
     lastPacket = now; // only once do this
     printWatts();
-    tickTock(now);
+    tickTock(nowk);
     decideToHeat();
   }
 
