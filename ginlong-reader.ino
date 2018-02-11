@@ -36,7 +36,7 @@ const float CALIBRATION_CONSTANT = 98.0;
 
 // WiFi parameters to be configured
 const char* ssid = "porcini";
-const char* password = "#Barghest#";
+const char* password = "";
 IPAddress me(192, 168, 1, 5);
 IPAddress gateway(192, 168, 1, 1); // set gateway to match your network
 IPAddress subnet(255, 255, 255, 0); // set subnet mask to match your network
